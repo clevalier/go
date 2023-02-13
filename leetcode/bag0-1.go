@@ -1,7 +1,6 @@
 package main
 
 //有n件物品和一个最多能背重量为w 的背包。第i件物品的重量是weight[i]，得到的价值是value[i] 。每件物品只能用一次，求解将哪些物品装入背包里物品价值总和最大。
-
 func test_2_wei_bag_problem1(weight, value []int, bagweight int) int {
 	// 定义dp数组
 	dp := make([][]int, len(weight))
@@ -19,14 +18,14 @@ func test_2_wei_bag_problem1(weight, value []int, bagweight int) int {
 			if j < weight[i] {
 				dp[i][j] = dp[i-1][j]
 			} else {
-				dp[i][j] = max1(dp[i-1][j], dp[i-1][j-weight[i]]+value[i])
+				dp[i][j] = maxbag(dp[i-1][j], dp[i-1][j-weight[i]]+value[i])
 			}
 		}
 	}
 	return dp[len(weight)-1][bagweight]
 }
 
-func max1(a, b int) int {
+func maxbag(a, b int) int {
 	if a > b {
 		return a
 	}
