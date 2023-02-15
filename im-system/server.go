@@ -29,28 +29,32 @@ func NewServer(ip string, port int) *Server {
 
 func (this *Server) Handler(conn net.Conn) {
 	//fmt.Println("连接建立成功")
-	user := NewUser(conn)
+	user := NewUser(conn, this)
+	user.Online()
 	//用户上线，将用户加入到onlineMap中
-	this.mapLock.Lock()
-	this.OnlineMap[user.Name] = user
-	this.mapLock.Unlock()
+	//this.mapLock.Lock()
+	//this.OnlineMap[user.Name] = user
+	//this.mapLock.Unlock()
 	//广播当前用户上线消息
-	this.BroadCast(user, "已上线")
+	//this.BroadCast(user, "已上线")
 	//接收客户端发送的消息
 	go func() {
 		buf := make([]byte, 4096)
 		for {
 			n, err := conn.Read(buf)
 			if n == 0 {
-				this.BroadCast(user, "已经下线")
+				//this.BroadCast(user, "已经下线")
+				user.Offline()
+				return
 			}
 			if err != nil && err != io.EOF {
 				fmt.Println("Conn Read err:", err)
 				return
 			}
+			//提取用户的消息（去除"\n"）
 			msg := string(buf[:n-1])
-			this.BroadCast(user, msg)
-
+			//this.BroadCast(user, msg)
+			user.DoMessage(msg)
 		}
 	}()
 	//当前handler阻塞
