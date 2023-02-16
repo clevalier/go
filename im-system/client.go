@@ -3,7 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"net"
+	"os"
 )
 
 type Client struct {
@@ -65,11 +67,29 @@ func (client *Client) Run() {
 			fmt.Println("私聊模式。。。")
 			break
 		case 3:
-			fmt.Println("更新用户名。。。")
+			//fmt.Println("更新用户名。。。")
+			client.UpdateName()
 			break
 		}
 	}
 }
+func (client *Client) UpdateName() bool {
+	fmt.Println("请输入用户名：")
+	fmt.Scanln(&client.Name)
+	sendMessage := "rename|" + client.Name + "\n"
+	_, err := client.conn.Write([]byte(sendMessage))
+	if err != nil {
+		fmt.Println("conn.Write err:", err)
+		return false
+	}
+	return true
+}
+
+func (client *Client) DealResponse() {
+	io.Copy(os.Stdout, client.conn)
+
+}
+
 func init() {
 	flag.StringVar(&serverIp, "ip", "127.0.0.1", "设置服务器ip（默认127.0.0.1）")
 	flag.IntVar(&serverPort, "port", 8888, "设置服务器端口（默认8888）")
@@ -83,6 +103,8 @@ func main() {
 		fmt.Println("连接服务器失败")
 		return
 	}
+	//单独开启一个go程去处理server的回执消息
+	go client.DealResponse()
 	fmt.Println("连接服务器成功")
 	//启动客户端的业务
 	//select {}
