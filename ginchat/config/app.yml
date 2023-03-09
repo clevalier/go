@@ -1,0 +1,2 @@
+mysql:
+  dns: root:cn@2020@tcp(192.168.1.6)/dayou_group?charset=utf8mb4&parseTime=True&loc=Local
